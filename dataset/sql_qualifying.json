@@ -1,0 +1,63 @@
+{
+	"name": "sql_qualifying",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "myf1db_sql_db",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "sql"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "qualifyId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "raceId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "driverId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "constructorId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "number",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "position",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "q1",
+				"type": "nvarchar"
+			},
+			{
+				"name": "q2",
+				"type": "nvarchar"
+			},
+			{
+				"name": "q3",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "imp_qualifying"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

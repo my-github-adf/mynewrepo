@@ -1,0 +1,52 @@
+{
+	"name": "csv_constructor_results",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "myf1dbblob",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "csv"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "constructor_results.csv",
+				"container": "mycontainer"
+			},
+			"columnDelimiter": "|",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"nullValue": {
+				"value": "/N",
+				"type": "Expression"
+			},
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "constructorResultsId",
+				"type": "String"
+			},
+			{
+				"name": "raceId",
+				"type": "String"
+			},
+			{
+				"name": "constructorId",
+				"type": "String"
+			},
+			{
+				"name": "points",
+				"type": "String"
+			},
+			{
+				"name": "status",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

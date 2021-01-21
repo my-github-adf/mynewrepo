@@ -1,0 +1,58 @@
+{
+	"name": "sql_races",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "myf1db_sql_db",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "sql"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "raceId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "year",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "round",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "circuitId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "name",
+				"type": "nvarchar"
+			},
+			{
+				"name": "date",
+				"type": "date"
+			},
+			{
+				"name": "time",
+				"type": "time",
+				"scale": 7
+			},
+			{
+				"name": "url",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "imp_races"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

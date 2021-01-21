@@ -1,0 +1,60 @@
+{
+	"name": "csv_constructor_standings",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "myf1dbblob",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "csv"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "constructor_standings.csv",
+				"container": "mycontainer"
+			},
+			"columnDelimiter": "|",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"nullValue": {
+				"value": "/N",
+				"type": "Expression"
+			},
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "constructorStandingsId",
+				"type": "String"
+			},
+			{
+				"name": "raceId",
+				"type": "String"
+			},
+			{
+				"name": "constructorId",
+				"type": "String"
+			},
+			{
+				"name": "points",
+				"type": "String"
+			},
+			{
+				"name": "position",
+				"type": "String"
+			},
+			{
+				"name": "positionText",
+				"type": "String"
+			},
+			{
+				"name": "wins",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

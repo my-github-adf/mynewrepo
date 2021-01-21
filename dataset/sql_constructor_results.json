@@ -1,0 +1,45 @@
+{
+	"name": "sql_constructor_results",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "myf1db_sql_db",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "sql"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "constructorResultsId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "raceId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "constructorId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "points",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "status",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "imp_constructor_results"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

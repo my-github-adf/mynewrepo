@@ -1,0 +1,17 @@
+{
+	"name": "mywin10_FS",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "FileServer",
+		"typeProperties": {
+			"host": "C:\\!SyncThing\\Dev\\Azure\\myf1db\\CSV",
+			"userId": "myuser",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiI1OGQ5ZmI2ZS03M2I3LTRiNDgtOWRiOC0xNjljZTU1NWExNDMiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "myIR-selfhosted-mywin10",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

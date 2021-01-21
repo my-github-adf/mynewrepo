@@ -1,0 +1,42 @@
+{
+	"name": "sql_constructors",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "myf1db_sql_db",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "sql"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "constructorId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "constructorRef",
+				"type": "nvarchar"
+			},
+			{
+				"name": "name",
+				"type": "nvarchar"
+			},
+			{
+				"name": "nationality",
+				"type": "nvarchar"
+			},
+			{
+				"name": "url",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "imp_constructors"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

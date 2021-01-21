@@ -1,0 +1,59 @@
+{
+	"name": "sql_drivers",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "myf1db_sql_db",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "sql"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "driverId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "driverRef",
+				"type": "nvarchar"
+			},
+			{
+				"name": "number",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "code",
+				"type": "nvarchar"
+			},
+			{
+				"name": "forename",
+				"type": "nvarchar"
+			},
+			{
+				"name": "surname",
+				"type": "nvarchar"
+			},
+			{
+				"name": "dob",
+				"type": "date"
+			},
+			{
+				"name": "nationality",
+				"type": "nvarchar"
+			},
+			{
+				"name": "url",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "imp_drivers"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

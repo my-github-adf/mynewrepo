@@ -1,0 +1,56 @@
+{
+	"name": "csv_lap_times",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "myf1dbblob",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "csv"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "lap_times.csv",
+				"container": "mycontainer"
+			},
+			"columnDelimiter": "|",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"nullValue": {
+				"value": "/N",
+				"type": "Expression"
+			},
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "raceId",
+				"type": "String"
+			},
+			{
+				"name": "driverId",
+				"type": "String"
+			},
+			{
+				"name": "lap",
+				"type": "String"
+			},
+			{
+				"name": "position",
+				"type": "String"
+			},
+			{
+				"name": "time",
+				"type": "String"
+			},
+			{
+				"name": "milliseconds",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

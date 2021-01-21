@@ -1,0 +1,68 @@
+{
+	"name": "csv_drivers",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "myf1dbblob",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "csv"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "drivers.csv",
+				"container": "mycontainer"
+			},
+			"columnDelimiter": "|",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"nullValue": {
+				"value": "/N",
+				"type": "Expression"
+			},
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "url",
+				"type": "String"
+			},
+			{
+				"name": "driverId",
+				"type": "String"
+			},
+			{
+				"name": "driverRef",
+				"type": "String"
+			},
+			{
+				"name": "number",
+				"type": "String"
+			},
+			{
+				"name": "code",
+				"type": "String"
+			},
+			{
+				"name": "forename",
+				"type": "String"
+			},
+			{
+				"name": "surname",
+				"type": "String"
+			},
+			{
+				"name": "dob",
+				"type": "String"
+			},
+			{
+				"name": "nationality",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

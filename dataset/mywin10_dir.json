@@ -1,0 +1,20 @@
+{
+	"name": "mywin10_dir",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "mywin10_FS",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "binaries"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "FileServerLocation"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

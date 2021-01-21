@@ -1,0 +1,21 @@
+{
+	"name": "myf1dbblob",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "myf1dbblob",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "binaries"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"container": "mycontainer"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

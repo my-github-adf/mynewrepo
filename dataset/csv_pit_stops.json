@@ -1,0 +1,60 @@
+{
+	"name": "csv_pit_stops",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "myf1dbblob",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "csv"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "pit_stops.csv",
+				"container": "mycontainer"
+			},
+			"columnDelimiter": "|",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"nullValue": {
+				"value": "/N",
+				"type": "Expression"
+			},
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "raceId",
+				"type": "String"
+			},
+			{
+				"name": "driverId",
+				"type": "String"
+			},
+			{
+				"name": "lap",
+				"type": "String"
+			},
+			{
+				"name": "time",
+				"type": "String"
+			},
+			{
+				"name": "milliseconds",
+				"type": "String"
+			},
+			{
+				"name": "stop",
+				"type": "String"
+			},
+			{
+				"name": "duration",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

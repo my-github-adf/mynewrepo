@@ -1,0 +1,2091 @@
+{
+	"name": "copy_onprem_to_blob_to_sql",
+	"properties": {
+		"activities": [
+			{
+				"name": "onprem_to_blob",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "BinarySource",
+						"storeSettings": {
+							"type": "FileServerReadSettings",
+							"recursive": true
+						},
+						"formatSettings": {
+							"type": "BinaryReadSettings"
+						}
+					},
+					"sink": {
+						"type": "BinarySink",
+						"storeSettings": {
+							"type": "AzureBlobStorageWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"parallelCopies": 1,
+					"dataIntegrationUnits": 2
+				},
+				"inputs": [
+					{
+						"referenceName": "mywin10_dir",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "myf1dbblob",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "sp_trunc_imp",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "onprem_to_blob",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[sp_trunc_imp]"
+				},
+				"linkedServiceName": {
+					"referenceName": "myf1db_sql_db",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "sp_upsert_src",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "csv_to_sql_constructor_results",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "csv_to_sql_constructor_standings",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "csv_to_sql_constructors",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "csv_to_sql_driver_standings",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "csv_to_sql_drivers",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "csv_to_sql_lap_times",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "csv_to_sql_pit_stops",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "csv_to_sql_qualifying",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "csv_to_sql_races",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "csv_to_sql_results",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "csv_to_sql_status",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "csv_to_sql_seasons",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "csv_to_sql_circuits_changed",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[sp_upsert_src]"
+				},
+				"linkedServiceName": {
+					"referenceName": "myf1db_sql_db",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "csv_to_sql_circuits_changed",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "sp_trunc_imp",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"parallelCopies": 1,
+					"dataIntegrationUnits": 2,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "circuitId",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "circuitId",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "circuitRef",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "circuitRef",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "name",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "name",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "location",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "location",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "country",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "country",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "lat",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "lat",
+									"type": "Double",
+									"physicalType": "float"
+								}
+							},
+							{
+								"source": {
+									"name": "lng",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "lng",
+									"type": "Double",
+									"physicalType": "float"
+								}
+							},
+							{
+								"source": {
+									"name": "alt",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "alt",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "url",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "url",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "csv_circuits",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "sql_circuits",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "csv_to_sql_constructor_results",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "sp_trunc_imp",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"parallelCopies": 1,
+					"dataIntegrationUnits": 2,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "constructorResultsId",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "constructorResultsId",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "raceId",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "raceId",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "constructorId",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "constructorId",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "points",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "points",
+									"type": "Double",
+									"physicalType": "float"
+								}
+							},
+							{
+								"source": {
+									"name": "status",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "status",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "csv_constructor_results",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "sql_constructor_results",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "csv_to_sql_constructor_standings",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "sp_trunc_imp",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"parallelCopies": 1,
+					"dataIntegrationUnits": 2,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "constructorStandingsId",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "constructorStandingsId",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "raceId",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "raceId",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "constructorId",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "constructorId",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "points",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "points",
+									"type": "Double",
+									"physicalType": "float"
+								}
+							},
+							{
+								"source": {
+									"name": "position",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "position",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "positionText",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "positionText",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wins",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "wins",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "csv_constructor_standings",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "sql_constructor_standings",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "csv_to_sql_constructors",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "sp_trunc_imp",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"parallelCopies": 1,
+					"dataIntegrationUnits": 2,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "constructorId",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "constructorId",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "constructorRef",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "constructorRef",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "name",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "name",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "nationality",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "nationality",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "url",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "url",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "csv_constructors",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "sql_constructors",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "csv_to_sql_driver_standings",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "sp_trunc_imp",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"parallelCopies": 1,
+					"dataIntegrationUnits": 2,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "driverStandingsId",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "driverStandingsId",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "raceId",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "raceId",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "driverId",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "driverId",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "points",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "points",
+									"type": "Double",
+									"physicalType": "float"
+								}
+							},
+							{
+								"source": {
+									"name": "position",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "position",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "positionText",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "positionText",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "wins",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "wins",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "csv_driver_standings",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "sql_driver_standings",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "csv_to_sql_drivers",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "sp_trunc_imp",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"parallelCopies": 1,
+					"dataIntegrationUnits": 2,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "driverId",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "driverId",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "driverRef",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "driverRef",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "number",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "number",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "code",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "code",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "forename",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "forename",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "surname",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "surname",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "dob",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "dob",
+									"type": "DateTime",
+									"physicalType": "date"
+								}
+							},
+							{
+								"source": {
+									"name": "nationality",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "nationality",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "url",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "url",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "csv_drivers",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "sql_drivers",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "csv_to_sql_lap_times",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "sp_trunc_imp",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"parallelCopies": 1,
+					"dataIntegrationUnits": 2,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "raceId",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "raceId",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "driverId",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "driverId",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "lap",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "lap",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "position",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "position",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "time",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "time",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "milliseconds",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "milliseconds",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "csv_lap_times",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "sql_lap_times",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "csv_to_sql_pit_stops",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "sp_trunc_imp",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"parallelCopies": 1,
+					"dataIntegrationUnits": 2,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "raceId",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "raceId",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "driverId",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "driverId",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "stop",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "stop",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "lap",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "lap",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "time",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "time",
+									"type": "TimeSpan",
+									"physicalType": "time"
+								}
+							},
+							{
+								"source": {
+									"name": "duration",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "duration",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "milliseconds",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "milliseconds",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "csv_pit_stops",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "sql_pit_stops",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "csv_to_sql_qualifying",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "sp_trunc_imp",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"parallelCopies": 1,
+					"dataIntegrationUnits": 2,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "qualifyId",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "qualifyId",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "raceId",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "raceId",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "driverId",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "driverId",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "constructorId",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "constructorId",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "number",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "number",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "position",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "position",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "q1",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "q1",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "q2",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "q2",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "q3",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "q3",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "csv_qualifying",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "sql_qualifying",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "csv_to_sql_races",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "sp_trunc_imp",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"parallelCopies": 1,
+					"dataIntegrationUnits": 2,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "raceId",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "raceId",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "year",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "year",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "round",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "round",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "circuitId",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "circuitId",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "name",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "name",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "date",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "date",
+									"type": "DateTime",
+									"physicalType": "date"
+								}
+							},
+							{
+								"source": {
+									"name": "time",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "time",
+									"type": "TimeSpan",
+									"physicalType": "time"
+								}
+							},
+							{
+								"source": {
+									"name": "url",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "url",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "csv_races",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "sql_races",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "csv_to_sql_results",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "sp_trunc_imp",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"parallelCopies": 1,
+					"dataIntegrationUnits": 2,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "resultId",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "resultId",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "raceId",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "raceId",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "driverId",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "driverId",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "constructorId",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "constructorId",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "number",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "number",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "grid",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "grid",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "position",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "position",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "positionText",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "positionText",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "positionOrder",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "positionOrder",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "points",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "points",
+									"type": "Double",
+									"physicalType": "float"
+								}
+							},
+							{
+								"source": {
+									"name": "laps",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "laps",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "time",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "time",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "milliseconds",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "milliseconds",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "fastestLap",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "fastestLap",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "rank",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "rank",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "fastestLapTime",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "fastestLapTime",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "fastestLapSpeed",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "fastestLapSpeed",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "statusId",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "statusId",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "csv_results",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "sql_results",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "csv_to_sql_seasons",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "sp_trunc_imp",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"parallelCopies": 1,
+					"dataIntegrationUnits": 2,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "year",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "year",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "url",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "url",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "csv_seasons",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "sql_seasons",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "csv_to_sql_status",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "sp_trunc_imp",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"parallelCopies": 1,
+					"dataIntegrationUnits": 2,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "statusId",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "statusId",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "status",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "status",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "csv_status",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "sql_status",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"concurrency": 1,
+		"annotations": [],
+		"lastPublishTime": "2021-01-21T15:51:54Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

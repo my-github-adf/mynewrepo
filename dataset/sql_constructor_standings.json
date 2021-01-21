@@ -1,0 +1,55 @@
+{
+	"name": "sql_constructor_standings",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "myf1db_sql_db",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "sql"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "constructorStandingsId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "raceId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "constructorId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "points",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "position",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "positionText",
+				"type": "nvarchar"
+			},
+			{
+				"name": "wins",
+				"type": "int",
+				"precision": 10
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "imp_constructor_standings"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

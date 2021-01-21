@@ -1,0 +1,55 @@
+{
+	"name": "sql_pit_stops",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "myf1db_sql_db",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "sql"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "raceId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "driverId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "stop",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "lap",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "time",
+				"type": "time",
+				"scale": 7
+			},
+			{
+				"name": "duration",
+				"type": "nvarchar"
+			},
+			{
+				"name": "milliseconds",
+				"type": "int",
+				"precision": 10
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "imp_pit_stops"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

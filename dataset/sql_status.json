@@ -1,0 +1,30 @@
+{
+	"name": "sql_status",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "myf1db_sql_db",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "sql"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "statusId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "status",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "imp_status"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

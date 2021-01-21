@@ -1,0 +1,10 @@
+{
+	"name": "myf1dbblob",
+	"properties": {
+		"privateLinkResourceId": "/subscriptions/4e0bac4c-af86-443d-8cfe-dacc4a4f8356/resourceGroups/myf1db-resgrp/providers/Microsoft.Storage/storageAccounts/myf1dbblob",
+		"groupId": "blob",
+		"fqdns": [
+			"myf1dbblob.blob.core.windows.net"
+		]
+	}
+}
