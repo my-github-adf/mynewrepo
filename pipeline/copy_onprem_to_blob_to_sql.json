@@ -152,7 +152,7 @@
 						]
 					},
 					{
-						"activity": "csv_to_sql_circuits",
+						"activity": "csv_to_sql_circuits_changed",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -175,7 +175,7 @@
 				}
 			},
 			{
-				"name": "csv_to_sql_circuits",
+				"name": "csv_to_sql_circuits_changed",
 				"type": "Copy",
 				"dependsOn": [
 					{
